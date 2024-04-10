@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+**Next.js Caching** 
 
-First, run the development server:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Request memoization 
+1. Data cache 
+1. Full Router cache
+1. Router cache
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+**Full Router Cache** 
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Next.js automatically renders and caches routes at build time. This is an optimization that allows you to serve the cached route instead of rendering on the server for every request, resulting in faster page loads.
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+**Static and Dynamic Rendering** 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Whether a route is cached or not at build time depends on whether it's statically or dynamically rendered. Static routes are cached by default, whereas dynamic routes are rendered at request time, and not cached.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Next.js considers particular route as dynamic if it contains any of the following
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+**Subsequent Navigations:**
+
+- **D**uring subsequent navigations or prefetching:
+- Next.js checks if the React Server Components Payload is already stored in the Router Cache.
+- If found, it avoids sending a new request to the server.
+- If the route segments aren’t cached, Next.js fetches the Payload from the server and populates the Router Cache on the client.
+
+**Duration** 
+
+By default, the Full Route Cache is persistent. This means that the render output is cached across user requests**.**
+
+**Revalidation**
+
+We can revalidate the Router Cache on demand similar to how we did it for the Data Cache. This means that revalidating Data Cache using revalidatePath or revalidateTag also revalidates the Router Cache.
+
+**revalidateTag()**
+
+**revalidatePath()**
+
+**Opting out** 
+
+1. Using Route segment config options 
+- const dynamic = 'force-dynamic'
+- const revalidate = 0
+
+
+**Caching Dynamic Route**
+
+1. generateStaticParams()
+
+- For dynamic paths, paths provided by generateStaticParams are cached in the Full Route Cache at build time. At request time, Next.js will also cache paths that weren't known at build time the first time they're visited.
+- generateStaticParams replaces the [getStaticPaths](https://nextjs.org/docs/pages/api-reference/functions/get-static-paths) function in the Pages Router.
+
+**DynamicParams** 
+**
+Control what happens when a dynamic segment is visited that was not generated with [generateStaticParams](https://nextjs.org/docs/app/api-reference/functions/generate-static-params).
+
+export const  dynamicParams=true
+
+True- Dynamic segments not included in generateStaticParams are generated on demand.
+
+False - Dynamic segments not included in generateStaticParams will return 404.
+
+
